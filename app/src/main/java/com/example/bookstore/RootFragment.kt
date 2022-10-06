@@ -16,25 +16,35 @@ class RootFragment : Fragment(R.layout.fragment_root) {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         binding = FragmentRootBinding.bind(view)
-        binding.openGreenBoxButton.setOnClickListener {
-            openBox(Color.rgb(225, 225, 200))
-        }
+
         binding.openYellowBoxButton.setOnClickListener {
-            openBox(Color.rgb(200, 225, 200))
+            openBox(Color.rgb(255, 255, 200), "Yellow")
+        }
+        binding.openGreenBoxButton.setOnClickListener {
+            openBox(Color.rgb(200, 255, 200), "Green")
         }
 
-        parentFragmentManager.setFragmentResultListener(BoxFragment.REQUEST_CODE,viewLifecycleOwner) { _,data ->
-            val number = data.getInt(BoxFragment.EXTRA_RANDOM_NUMBER)
-            Toast.makeText(requireContext(),"Generate number: $number",Toast.LENGTH_SHORT).show()
+        val liveData =
+            findNavController().currentBackStackEntry?.savedStateHandle // savedStateHandle сущность которая сохраняет своё состояние
+                ?.getLiveData<Int>(
+                    BoxFragment.EXTRA_RANDOM_NUMBER
+                )
+        liveData?.observe(viewLifecycleOwner) { randomNumber ->
+            if (randomNumber != null)// for cancel duplicate random number after turning screen
+                Toast.makeText(
+                    requireContext(),
+                    getString(R.string.generated_number, randomNumber),
+                    Toast.LENGTH_SHORT
+                ).show()
+            liveData.value = null
         }
-
-
     }
 
-    private fun openBox(color: Int) {
+    private fun openBox(color: Int, colorName: String) {
+        val direction = RootFragmentDirections.actionRootFragmentToBoxFragment(colorName, color)
+
         findNavController().navigate(
-            R.id.action_rootFragment_to_boxFragment,
-            bundleOf(BoxFragment.ARG_COLOR to color)
+            direction
         )
     }
 }
