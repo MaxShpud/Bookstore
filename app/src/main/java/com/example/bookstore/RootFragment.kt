@@ -3,6 +3,7 @@ package com.example.bookstore
 import android.graphics.Color
 import android.os.Bundle
 import android.view.View
+import android.widget.Toast
 import androidx.core.os.bundleOf
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
@@ -21,6 +22,13 @@ class RootFragment : Fragment(R.layout.fragment_root) {
         binding.openYellowBoxButton.setOnClickListener {
             openBox(Color.rgb(200, 225, 200))
         }
+
+        parentFragmentManager.setFragmentResultListener(BoxFragment.REQUEST_CODE,viewLifecycleOwner) { _,data ->
+            val number = data.getInt(BoxFragment.EXTRA_RANDOM_NUMBER)
+            Toast.makeText(requireContext(),"Generate number: $number",Toast.LENGTH_SHORT).show()
+        }
+
+
     }
 
     private fun openBox(color: Int) {
